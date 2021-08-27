@@ -1,5 +1,7 @@
 
-
+var PLAY = 1;
+var END = 0;
+var gameState = PLAY;
 var mario, mario_running, mario_collided;
 var ground, invisibleGround, groundImage;
 
@@ -16,6 +18,7 @@ function preload(){
   groundImage = loadImage("ground2.png");
   
   obstacleimage = loadAnimation("obstacle1.png","obstacle2.png","obstacle3.png","obstacle4.png");
+  brickImage = loadImage("brick.png")
   
   gameOverImg = loadImage("gameOver.png");
   restartImg = loadImage("restart.png");
@@ -28,12 +31,13 @@ function preload(){
 function setup() {
   createCanvas(600, 350);
   
-  mario = createSprite(50,295,20,50);
+  mario = createSprite(50,295,20,50)
   
   mario.addAnimation("running",mario_running);
   mario.addAnimation("collided", mario_collided);
   mario.scale = 2;
-  mario.debug=true
+ 
+  obstaclesGroup = new Group();
   ground = createSprite(200,330,400,20);
   ground.addImage("ground",groundImage);
   ground.x = ground.width /2;
@@ -41,7 +45,7 @@ function setup() {
   
   invisibleGround = createSprite(200,300,400,10);
   invisibleGround.visible = false;
-  
+  bricksGroup = new Group();
   
   fill(0);
 textSize(24);
@@ -53,6 +57,8 @@ function draw() {
   //trex.debug = true;
   background(bg);
   text("Score: "+ score, 480,30);
+  
+  if (gameState===PLAY){
     
     ground.velocityX = -(12);
   
@@ -69,8 +75,29 @@ function draw() {
       ground.x = ground.width/2;
     }
 
+    for (var i = 0; i < bricksGroup.length; i++) {
+    
+      if(bricksGroup.get(i).isTouching(mario)){
+      bricksGroup.get(i).remove()
+      score =score+1;
+    }
+    }
     mario.collide(invisibleGround);
-    spawnbricks(); 
+    spawnbricks();
+    spawnObstacles();
+  
+    if(obstaclesGroup.isTouching(mario)){
+        gameState = END;
+      
+    }
+    mario.collide(bricksGroup);
+  }
+  else if (gameState === END) {
+   
+    
+
+  }
+  
   
   drawSprites();
 }
@@ -81,20 +108,31 @@ function spawnbricks() {
     var brick = createSprite(600,120,40,10);
     brick.debug=true
     brick.y = Math.round(random(150,180));
-   //  brick.addImage(brickImage);
+   brick.addImage(brickImage);
     brick.scale = 1;
     brick.velocityX = -3;
     
      //assign lifetime to the variable
     brick.lifetime = 200;
-    
-    //adjust the depth
-    brick.depth = mario.depth;
-    mario .depth = mario.depth + 1;
-    
-    
+    bricksGroup.add(brick);
+       
   }
   
 }
-
+function spawnObstacles() {
+  if(frameCount % 60 === 0) {
+    var obstacle = createSprite(600,270,10,40);
+    //obstacle.debug = true;
+    obstacle.velocityX = -(6);
+    
+    //generate random obstacles
+    obstacle.addAnimation("obstacles",obstacleimage)
+    
+    //assign scale and lifetime to the obstacle           
+    obstacle.scale = 1;
+    obstacle.lifetime = 300;
+    //add each obstacle to the group
+    obstaclesGroup.add(obstacle);
+  }
+}
 
