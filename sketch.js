@@ -44,6 +44,17 @@ function setup() {
   invisibleGround = createSprite(200,300,400,10);
   invisibleGround.visible = false;
   bricksGroup = new Group();
+  gameOver = createSprite(300,100);
+  gameOver.addImage(gameOverImg);
+  
+  restart = createSprite(300,140);
+  restart.addImage(restartImg);
+  
+  gameOver.scale = 0.5;
+  restart.scale = 0.5;
+
+  gameOver.visible = false;
+  restart.visible = false;
   
  
   score = 0;
@@ -88,13 +99,9 @@ function draw() {
   
   
   else if (gameState === END) {
-   
-    background(0);
-    fill("white");
-    textSize(25);
-    text("GAME OVER",240,200);
-    mario.destroy();
-
+    mario.changeAnimation("collided");
+    gameOver.visible = true;
+    restart.visible = true;
   }
   drawSprites();
 }
